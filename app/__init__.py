@@ -1,6 +1,6 @@
 import os
 import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
+from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -24,12 +24,21 @@ def create_app(config_class=Config):
     cors.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    
+    with app.app_context():
+        db.Model.metadata.reflect(db.engine)
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    #from app.auth import bp as auth_bp
-    #app.register_blueprint(auth_bp)
+    from app.auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
+    
+    from app.passphrase import bp as passphrase_bp
+    app.register_blueprint(passphrase_bp)
+    
+    from app.scraper import bp as scraper_bp
+    app.register_blueprint(scraper_bp)
 
 
     if not app.debug and not app.testing:
