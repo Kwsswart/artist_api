@@ -1,10 +1,11 @@
 from app import db
 from app.scraper import bp
-from app.models import artists
+from app.models import ArtistImages, artists
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app.scraper.spider import Spider
+from app.scraper.spider import *
+
 
 
 @bp.route("/scraper/enrich_data", methods=["GET"])
@@ -13,7 +14,7 @@ def enrich_data():
     """
     End-point to start the process of enriching the database
     Usage:
-    $ curl -H "Authorization: Bearer <JWT_KEY>" "http://localhost:5000/api/enrich_database"
+    $ curl -H "Authorization: Bearer <JWT_KEY>" "http://localhost:5000/scraper/enrich_data"
     """
     
     try:
@@ -21,8 +22,10 @@ def enrich_data():
         seedlist = scraper.run()
         
         for seed in seedlist:
+            
             artist = artists.query.filter_by(ArtistId=seed['ArtistId']).first()
-            artist.artist_image = seed['artist_image']
+            img = ArtistImages(seed['artist_image'], artist_id=artist.ArtistId) 
+            db.session.add(img)
             db.session.commit()
         
         return jsonify({'success': True})

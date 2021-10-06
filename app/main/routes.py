@@ -1,7 +1,6 @@
 import os
 from app import db
 from app.main import bp
-from app.main.helpers import *
 from app.models import tracks, albums, artists
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -13,15 +12,8 @@ def get_artists():
     End-point to return a list of artists.
     Usage:
     $ curl "http://localhost:5000/api/get_artists"
-    """
-    response = list()
-    for artist in [artist.as_dict() for artist in artists.query.all()]:
-        art = artist.copy()
-        image_path = os.path.join(os.getcwd(), "downloaded_images", f"{artist['ArtistId']}.jpg")
-        encoded_img = get_response_image(image_path)
-        art['ImageBytes']= encoded_img
-        response.append(art)
-    return jsonify(response)
+    """            
+    return jsonify([artist.as_dict() for artist in artists.query.all()])
 
 
 @bp.route("/api/albums", methods=["GET"])
@@ -33,6 +25,7 @@ def get_albums():
     $ curl -H "Authorization: Bearer <JWT_KEY>" "http://localhost:5000/api/albums"
     """
     try:
+        #todo
         albums_list = [{
             'album':a.as_dict(),
             "tracks": [track.as_dict() for track in tracks.query.filter(tracks.AlbumId==a.AlbumId).all()]} 
@@ -53,7 +46,7 @@ def get_artist_albums(artist_id):
     i.e: 
     $ curl -H "Authorization: Bearer <JWT_KEY>" "http://localhost:5000/api/artist_albums/1"
     """
-    
+    # todo
     try:
         return jsonify([album.as_dict() for album in albums.query.filter(albums.Artist==artists.query.get(artist_id)).all()])
     except Exception as e:
@@ -68,10 +61,10 @@ def get_detailed_albums():
     Usage:
     $ curl -H "Authorization: Bearer <JWT_KEY>" "http://localhost:5000/api/albums_detailed"
     """
-    
+    # todo:
     try:
         albums_list = [{
-            'album':a.as_dict(),
+            'album': a.as_dict(),
             "tracks": [track.as_dict() for track in tracks.query.filter(tracks.AlbumId==a.AlbumId).all()]} 
                        for a in albums.query.all()]
         # havent used list comprehension as update returns None 

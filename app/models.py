@@ -1,4 +1,15 @@
+import os
+import base64
 from app import db
+
+
+def get_response_image(image_path):
+    try:
+        with open(image_path, 'rb') as f:
+            img = f.read()
+        return base64.encodebytes(img).decode('utf-8')
+    except Exception as e:
+        pass#print(e)
 
 class Users(db.Model):
     """
@@ -26,19 +37,56 @@ class artists(db.Model):
     Name = db.Column(db.String(120))
 
     album = db.relationship('albums', backref='artist', lazy='dynamic')
-    artist_image = db.Column(db.String(10000), nullable=True)
+    artist_image = db.relationship('ArtistImages', backref='artist', lazy='dynamic')
     
-    def __init__(self, name, artist_image=None):
-        self.artist_image = artist_image
+    def __init__(self, name):
         self.Name = name
         
+    def get_image(self):
+        try:
+            encoded_img = get_response_image(os.path.join(os.getcwd(), "downloaded_images", f"{self.ArtistId}.jpg"))
+        except Exception as e: 
+            print(f"Error_encoding_image: {str(e)}")
+            encoded_img =  None
+        try:
+            image_url = ArtistImages.query.filter_by(ArtistId=self.ArtistId).first().as_dict()
+        except Exception as e: 
+            print(f"Error_retreiving_image_url: {str(e)}")
+            image_url = None
+        return encoded_img, image_url
+    
+    def as_dict_with_images(self):
+        encoded_img, image_url = self.get_image()
+        
+        return {'ArtistId': self.ArtistId, 'Name': self.Name, 'EncodedImage': encoded_img, "ImageUrl": image_url}
+    
     def as_dict(self):
-        return {'ArtistId': self.ArtistId, 'Name': self.Name, 'artist_image': self.artist_image}
-
+        
+        return {'ArtistId': self.ArtistId, 'Name': self.Name}
 
     def __repr__(self):
         return "<Artist: Name - {}>".format(self.Name)
 
+
+class ArtistImages(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    artist_image = db.Column(db.String(10000), nullable=True)
+    
+    ArtistId = db.Column(db.Integer, db.ForeignKey("artists.ArtistId"), nullable=False)
+    Artist = db.relationship('artists', foreign_keys=ArtistId)
+    
+    def __init__(self, artist_image, artist_id):
+        self.artist_image = artist_image
+        self.ArtistId = artist_id
+        
+    def as_dict(self):
+        return {'ArtistImageId': self.id, 'artist_image': self.artist_image, 'Artist': self.Artist.as_dict()}
+
+
+    def __repr__(self):
+        return "<Album: artist_image - {}; Artist - {}>".format(self.artist_image, self.Artist)
+    
+    
 
 class albums(db.Model):
     

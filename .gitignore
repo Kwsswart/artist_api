@@ -1,6 +1,4 @@
-*.db
 venv/
 __pycache__/
 logs/
 .env
-downloaded_images/

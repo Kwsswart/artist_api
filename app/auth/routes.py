@@ -61,8 +61,8 @@ def register():
         # secure details validate username
         addUser(username, enc(email), pwd)
         return jsonify({"success": True})
-    except:
-        return jsonify({"error": "Invalid form"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 @bp.route("/api/checkiftokenexpire", methods=["POST"])
