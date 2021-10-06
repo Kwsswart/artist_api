@@ -3,7 +3,7 @@ from app.scraper import bp
 from app.models import ArtistImages, artists
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+import json
 from app.scraper.spider import *
 
 
@@ -20,11 +20,18 @@ def enrich_data():
     try:
         scraper = Spider(seedlist=[artist.as_dict() for artist in artists.query.all()])
         seedlist = scraper.run()
-        
+        '''
+        seedlist = list()
+        with open("seedlist.jsonlines", "r") as f:
+            content = f.readline()
+            while content != '':
+                content = json.loads(content)
+                seedlist.append(content)
+                content = f.readline()'''
         for seed in seedlist:
             
             artist = artists.query.filter_by(ArtistId=seed['ArtistId']).first()
-            img = ArtistImages(seed['artist_image'], artist_id=artist.ArtistId) 
+            img = ArtistImages(seed['artist_image'], artist.ArtistId) 
             db.session.add(img)
             db.session.commit()
         

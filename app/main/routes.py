@@ -13,7 +13,7 @@ def get_artists():
     Usage:
     $ curl "http://localhost:5000/api/get_artists"
     """            
-    return jsonify([artist.as_dict() for artist in artists.query.all()])
+    return jsonify([artist.as_dict_with_images() for artist in artists.query.all()])
 
 
 @bp.route("/api/albums", methods=["GET"])

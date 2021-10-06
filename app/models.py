@@ -49,7 +49,7 @@ class artists(db.Model):
             print(f"Error_encoding_image: {str(e)}")
             encoded_img =  None
         try:
-            image_url = ArtistImages.query.filter_by(ArtistId=self.ArtistId).first().as_dict()
+            image_url = ArtistImages.query.filter(ArtistImages.ArtistId==self.ArtistId).first().as_dict()
         except Exception as e: 
             print(f"Error_retreiving_image_url: {str(e)}")
             image_url = None
@@ -70,31 +70,32 @@ class artists(db.Model):
 
 class ArtistImages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    
     artist_image = db.Column(db.String(10000), nullable=True)
     
-    ArtistId = db.Column(db.Integer, db.ForeignKey("artists.ArtistId"), nullable=False)
-    Artist = db.relationship('artists', foreign_keys=ArtistId)
+    ArtistId = db.Column(db.Integer, db.ForeignKey("artists.ArtistId"))
     
     def __init__(self, artist_image, artist_id):
         self.artist_image = artist_image
         self.ArtistId = artist_id
         
     def as_dict(self):
-        return {'ArtistImageId': self.id, 'artist_image': self.artist_image, 'Artist': self.Artist.as_dict()}
-
+        return {'ArtistImageId': self.id, 'artist_image': self.artist_image}
 
     def __repr__(self):
-        return "<Album: artist_image - {}; Artist - {}>".format(self.artist_image, self.Artist)
+        return "<Album: artist_image - {}>".format(self.artist_image)
     
     
 
 class albums(db.Model):
     
     __table_args__ = {'extend_existing': True}
+    
     AlbumId = db.Column(db.Integer, primary_key=True)
     Title = db.Column(db.String(120), nullable=False)
+    
     ArtistId = db.Column(db.Integer, db.ForeignKey("artists.ArtistId"), nullable=False)
-    Artist = db.relationship('artists', foreign_keys=ArtistId)
+    
     track = db.relationship('tracks', backref='album', lazy='dynamic')
 
     def __init__(self, title, artist):
@@ -112,8 +113,10 @@ class albums(db.Model):
 class genres(db.Model):
     
     __table_args__ = {'extend_existing': True}
+    
     GenreId = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(120))
+    
     track = db.relationship('tracks', backref='genre', lazy='dynamic')
     
     def __init__(self, name):
@@ -129,8 +132,10 @@ class genres(db.Model):
 class media_types(db.Model):
     
     __table_args__ = {'extend_existing': True}
+    
     MediaTypeId = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(120))
+    
     track = db.relationship('tracks', backref='media_type', lazy='dynamic')
 
     def __init__(self, name):
@@ -146,14 +151,14 @@ class media_types(db.Model):
 class tracks(db.Model):
     
     __table_args__ = {'extend_existing': True}
+    
     TrackId = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(200), nullable=False)
+    
     AlbumId = db.Column(db.Integer, db.ForeignKey("albums.AlbumId"))
-    Album = db.relationship('albums', foreign_keys=AlbumId)
     MediaTypeId = db.Column(db.Integer, db.ForeignKey("media_types.MediaTypeId"), nullable=False)
-    MediaType = db.relationship('media_types', foreign_keys=MediaTypeId)
     GenreId = db.Column(db.Integer, db.ForeignKey("genres.GenreId"))
-    Genre = db.relationship('genres', foreign_keys=GenreId)
+    
     Composer = db.Column(db.String(220))
     Milliseconds = db.Column(db.Integer, nullable=False)
     Bytes = db.Column(db.Integer)
@@ -183,6 +188,7 @@ class InvalidToken(db.Model):
     """
 
     __tablename__ = "invalid_tokens"
+    
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String)
 

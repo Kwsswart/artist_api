@@ -1,8 +1,8 @@
-"""init
+"""fixing keys
 
-Revision ID: 3812f6585c2c
+Revision ID: 3f1651fb0622
 Revises: 
-Create Date: 2021-10-05 21:19:37.944916
+Create Date: 2021-10-06 09:48:18.793608
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3812f6585c2c'
+revision = '3f1651fb0622'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,6 +30,13 @@ def upgrade():
     sa.Column('pwd', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('user_id')
     )
+    op.create_table('artist_images',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('artist_image', sa.String(length=10000), nullable=True),
+    sa.Column('ArtistId', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['ArtistId'], ['artists.ArtistId'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.drop_index('IFK_AlbumArtistId', table_name='albums')
     op.drop_index('IFK_TrackAlbumId', table_name='tracks')
     op.drop_index('IFK_TrackGenreId', table_name='tracks')
@@ -43,6 +50,7 @@ def downgrade():
     op.create_index('IFK_TrackGenreId', 'tracks', ['GenreId'], unique=False)
     op.create_index('IFK_TrackAlbumId', 'tracks', ['AlbumId'], unique=False)
     op.create_index('IFK_AlbumArtistId', 'albums', ['ArtistId'], unique=False)
+    op.drop_table('artist_images')
     op.drop_table('users')
     op.drop_table('invalid_tokens')
     # ### end Alembic commands ###

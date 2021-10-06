@@ -15,7 +15,8 @@ def make_shell_context():
         'tracks': tracks,
         'fenres': genres,
         'media_types': media_types,
-        'InvalidToken': InvalidToken
+        'InvalidToken': InvalidToken,
+        'ArtistImages': ArtistImages
     }
 
 
