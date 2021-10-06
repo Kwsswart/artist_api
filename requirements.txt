@@ -28,5 +28,6 @@ requests==2.26.0
 six==1.16.0
 soupsieve==2.2.1
 SQLAlchemy==1.4.25
+tqdm==4.62.3
 urllib3==1.26.7
 Werkzeug==2.0.1
