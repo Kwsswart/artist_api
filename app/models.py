@@ -4,12 +4,27 @@ from app import db
 
 
 def get_response_image(image_path):
+    """
+    Function to convert image into bs4_string for data transfer
+    """
+    
     try:
         with open(image_path, 'rb') as f:
             img = f.read()
         return base64.encodebytes(img).decode('utf-8')
     except Exception as e:
         print(e)
+
+
+def convert_response_to_image(bs4_string, filename):
+    """
+    Function to assist with testing the image encoding functionality
+    """
+
+    with open(filename, "wb") as f:
+        imgdata = base64.b64decode(bs4_string)
+        f.write(imgdata)
+
 
 class Users(db.Model):
     """
